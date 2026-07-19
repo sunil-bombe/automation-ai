@@ -12,6 +12,9 @@ npm install
 npx playwright install chromium   # downloads the browser binary
 ```
 
+If you installed dependencies *before* this update, run `npm install` again
+so `tsx` gets pulled in (it replaced `ts-node` — see Troubleshooting below).
+
 ## 2. Run a feature file
 
 ```bash
@@ -23,6 +26,23 @@ Add `--headed` to watch the browser instead of running headless:
 ```bash
 npm run start -- features/login.feature --headed
 ```
+
+Alternatively, compile then run plain JS (no TS runner involved at all):
+
+```bash
+npm run build
+npm run run -- features/login.feature
+```
+
+## Troubleshooting
+
+**`TypeError [ERR_UNKNOWN_FILE_EXTENSION]: Unknown file extension ".ts"`**
+This happens when Node tries to load a `.ts` file directly instead of through
+a TypeScript loader — usually because `ts-node`'s ESM loader wasn't picked up
+correctly on your Node version. This project now uses `tsx` instead, which
+handles TS + ESM without extra flags. Run `npm install` to pick it up, or
+just use the build-then-run path above, which sidesteps the issue entirely
+since it runs compiled `.js`.
 
 ## 3. See the results
 
