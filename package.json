@@ -1,0 +1,21 @@
+{
+  "name": "automation-ai",
+  "version": "0.1.0",
+  "description": "AI-Native Automation Framework using MCP & Playwright — run Gherkin feature files with no step definitions, no page objects, no manual locators.",
+  "type": "module",
+  "main": "dist/orchestrator.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "run": "node dist/orchestrator.js",
+    "start": "ts-node --esm src/orchestrator.ts",
+    "test": "ts-node --esm src/orchestrator.ts"
+  },
+  "dependencies": {
+    "playwright": "^1.47.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "ts-node": "^10.9.2",
+    "@types/node": "^20.14.0"
+  }
+}
