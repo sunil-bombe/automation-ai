@@ -93,7 +93,7 @@ export function createParserMCP(): ParserMCP {
         const keywordMatch = line.match(/^(Given|When|Then|And|But)\b/i);
         const keywordRaw = keywordMatch![1];
         // "And"/"But" inherit the previous concrete keyword (Given/When/Then)
-        const keyword =
+        const keyword: ParsedStep["keyword"] =
           keywordRaw === "And" || keywordRaw === "But"
             ? lastKeyword
             : (keywordRaw as ParsedStep["keyword"]);
