@@ -38,10 +38,9 @@ function inferStep(rawLine: string, keyword: ParsedStep["keyword"]): ParsedStep 
     target = quoted[0];
   } else if (lower.includes("enters")) {
     action = "fill";
-    // "User enters username "student"" -> field name is the word right
-    // before "enters" is not it; it's the word between "enters" and the quote.
     const fieldMatch = lower.match(/enters\s+([a-z0-9 _-]+?)\s*"/);
-    target = fieldMatch ? fieldMatch[1].trim() : "field";
+    const rawTarget = fieldMatch ? fieldMatch[1].trim() : "field";
+    target = normalizeTarget(rawTarget);
     value = quoted[0];
   } else if (lower.includes("selects")) {
     action = "select";
@@ -53,7 +52,8 @@ function inferStep(rawLine: string, keyword: ParsedStep["keyword"]): ParsedStep 
     target = quoted[0];
   } else if (lower.includes("clicks")) {
     action = "click";
-    target = quoted[0];
+    const clickTarget = quoted[0] ?? line.replace(/^\s*(and|when)\s+/i, "").replace(/^clicks\s+/i, "").trim();
+    target = normalizeTarget(clickTarget);
   } else if (lower.includes("should be displayed") || lower.includes("should appear") || lower.includes("should exist")) {
     action = "verify";
     target = quoted[0] ?? line.replace(/^then\s+/i, "").split(" should")[0].trim();
@@ -63,6 +63,30 @@ function inferStep(rawLine: string, keyword: ParsedStep["keyword"]): ParsedStep 
   }
 
   return { raw: line, keyword, action, target, value };
+}
+
+function normalizeTarget(target: string): string {
+  const normalized = target.trim().toLowerCase();
+  const aliases: Record<string, string> = {
+    "username": "username",
+    "user name": "username",
+    "password": "password",
+    "login": "Login",
+    "submit": "Submit",
+    "dashboard": "Dashboard",
+    "pim": "PIM",
+    "add employee": "Add Employee",
+    "add employee button": "Add Employee",
+    "save": "Save",
+    "search": "Search",
+    "welcome admin": "Welcome Admin",
+    "logout": "Logout",
+    "first name": "First Name",
+    "last name": "Last Name",
+    "employee name": "Employee Name",
+  };
+
+  return aliases[normalized] ?? target.trim();
 }
 
 export interface ParserMCP {
