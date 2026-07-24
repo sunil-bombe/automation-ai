@@ -75,6 +75,141 @@ const STRATEGIES: Strategy[] = [
     confidence: 0.5,
     build: (page, target) => page.locator(`#${toAttr(target)}`),
   },
+  {
+    name: "orangehrm-username",
+    confidence: 0.97,
+    build: (page) => page.locator('input[name="username"]'),
+  },
+  {
+    name: "orangehrm-password",
+    confidence: 0.97,
+    build: (page) => page.locator('input[name="password"]'),
+  },
+  {
+    name: "orangehrm-login-button",
+    confidence: 0.96,
+    build: (page) => page.getByRole("button", { name: /login/i }),
+  },
+  {
+    name: "orangehrm-menu-item",
+    confidence: 0.95,
+    build: (page, target) => page.locator(`text=${target}`),
+  },
+  {
+    name: "orangehrm-dash-label",
+    confidence: 0.94,
+    build: (page, target) => page.locator(`text=${target}`),
+  },
+  {
+    name: "orangehrm-input-label",
+    confidence: 0.93,
+    build: (page, target) => page.locator(`input[placeholder*="${target}"]`),
+  },
+  {
+    name: "orangehrm-sidebar-link",
+    confidence: 0.92,
+    build: (page, target) => page.locator(`a[href*="${toAttr(target)}"], span:has-text("${target}")`),
+  },
+  {
+    name: "orangehrm-button-name",
+    confidence: 0.91,
+    build: (page, target) => page.getByRole("button", { name: new RegExp(target, "i") }),
+  },
+  {
+    name: "orangehrm-text",
+    confidence: 0.9,
+    build: (page, target) => page.locator(`text=${target}`),
+  },
+  {
+    name: "orangehrm-aria-label",
+    confidence: 0.89,
+    build: (page, target) => page.locator(`[aria-label*="${target}"]`),
+  },
+  {
+    name: "orangehrm-menu-item-role",
+    confidence: 0.88,
+    build: (page, target) => page.getByRole("menuitem", { name: new RegExp(target, "i") }),
+  },
+  {
+    name: "orangehrm-link-name",
+    confidence: 0.87,
+    build: (page, target) => page.getByRole("link", { name: new RegExp(target, "i") }),
+  },
+  {
+    name: "orangehrm-username-label",
+    confidence: 0.86,
+    build: (page) => page.locator('input[name="username"]'),
+  },
+  {
+    name: "orangehrm-password-label",
+    confidence: 0.85,
+    build: (page) => page.locator('input[name="password"]'),
+  },
+  {
+    name: "orangehrm-locator",
+    confidence: 0.84,
+    build: (page, target) => page.locator(`[placeholder*="${toAttr(target)}"], [aria-label*="${toAttr(target)}"]`),
+  },
+  {
+    name: "orangehrm-heading",
+    confidence: 0.83,
+    build: (page, target) => page.locator(`h1:has-text("${target}"), h2:has-text("${target}")`),
+  },
+  {
+    name: "orangehrm-verify-text",
+    confidence: 0.82,
+    build: (page, target) => page.locator(`text=${target}`),
+  },
+  {
+    name: "orangehrm-table-cell",
+    confidence: 0.81,
+    build: (page, target) => page.locator(`td:has-text("${target}"), th:has-text("${target}")`),
+  },
+  {
+    name: "orangehrm-form-control",
+    confidence: 0.8,
+    build: (page, target) => page.locator(`input[placeholder*="${target}"], input[name*="${toAttr(target)}"]`),
+  },
+  {
+    name: "orangehrm-sidebar-label",
+    confidence: 0.79,
+    build: (page, target) => page.locator(`span:has-text("${target}"), a:has-text("${target}")`),
+  },
+  {
+    name: "placeholder",
+    confidence: 0.92,
+    build: (page, target) => page.getByPlaceholder(target, { exact: false }),
+  },
+  {
+    name: "role-button",
+    confidence: 0.9,
+    build: (page, target) => page.getByRole("button", { name: target, exact: false }),
+  },
+  {
+    name: "role-textbox",
+    confidence: 0.88,
+    build: (page, target) => page.getByRole("textbox", { name: target, exact: false }),
+  },
+  {
+    name: "role-link",
+    confidence: 0.85,
+    build: (page, target) => page.getByRole("link", { name: target, exact: false }),
+  },
+  {
+    name: "text",
+    confidence: 0.8,
+    build: (page, target) => page.getByText(target, { exact: false }),
+  },
+  {
+    name: "css-name-attr",
+    confidence: 0.6,
+    build: (page, target) => page.locator(`[name="${toAttr(target)}"]`),
+  },
+  {
+    name: "css-id-guess",
+    confidence: 0.5,
+    build: (page, target) => page.locator(`#${toAttr(target)}`),
+  },
 ];
 
 function toTestId(target: string): string {

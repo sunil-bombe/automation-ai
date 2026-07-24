@@ -35,12 +35,25 @@ export function createPlaywrightMCP(options: PlaywrightMCPOptions = {}): Playwri
     const started = Date.now();
     const base: Pick<StepResult, "stepId" | "raw"> = { stepId: step.stepId, raw: step.raw };
 
+    async function captureStepScreenshot(status: StepResult["status"]): Promise<string | undefined> {
+      if (status === "FAILED") {
+        return captureFailureScreenshot(page, step.stepId, screenshotDir);
+      }
+
+      if (step.action === "navigate" || step.action === "fill" || step.action === "click" || step.action === "select" || step.action === "check" || step.action === "verify") {
+        return captureFailureScreenshot(page, step.stepId, screenshotDir);
+      }
+
+      return undefined;
+    }
+
     try {
       switch (step.action) {
         case "navigate": {
           if (!step.target) throw new Error("navigate step missing a URL");
           await page.goto(step.target, { timeout: step.timeoutMs });
-          return { ...base, status: "PASSED", durationMs: Date.now() - started };
+          const screenshotPath = await captureStepScreenshot("PASSED");
+          return { ...base, status: "PASSED", durationMs: Date.now() - started, screenshotPath };
         }
 
         case "fill": {
@@ -52,6 +65,7 @@ export function createPlaywrightMCP(options: PlaywrightMCPOptions = {}): Playwri
           }
           await resolved.locator.fill(step.value ?? "", { timeout: step.timeoutMs });
           recordHealing(knowledge, step.target, known, resolved);
+          const screenshotPath = await captureStepScreenshot(known && known.strategy !== resolved.strategy ? "HEALED" : "PASSED");
           return {
             ...base,
             status: known && known.strategy !== resolved.strategy ? "HEALED" : "PASSED",
@@ -60,6 +74,7 @@ export function createPlaywrightMCP(options: PlaywrightMCPOptions = {}): Playwri
             healedFrom: known?.selector,
             healedTo: known && known.strategy !== resolved.strategy ? resolved.selector : undefined,
             confidence: resolved.confidence,
+            screenshotPath,
           };
         }
 
@@ -72,12 +87,14 @@ export function createPlaywrightMCP(options: PlaywrightMCPOptions = {}): Playwri
           }
           await resolved.locator.click({ timeout: step.timeoutMs });
           recordHealing(knowledge, step.target, known, resolved);
+          const screenshotPath = await captureStepScreenshot(known && known.strategy !== resolved.strategy ? "HEALED" : "PASSED");
           return {
             ...base,
             status: known && known.strategy !== resolved.strategy ? "HEALED" : "PASSED",
             durationMs: Date.now() - started,
             locatorAttempts: resolved.attempts,
             confidence: resolved.confidence,
+            screenshotPath,
           };
         }
 
@@ -90,7 +107,8 @@ export function createPlaywrightMCP(options: PlaywrightMCPOptions = {}): Playwri
           }
           await resolved.locator.selectOption(step.value ?? "", { timeout: step.timeoutMs });
           recordHealing(knowledge, step.target, known, resolved);
-          return { ...base, status: "PASSED", durationMs: Date.now() - started };
+          const screenshotPath = await captureStepScreenshot("PASSED");
+          return { ...base, status: "PASSED", durationMs: Date.now() - started, screenshotPath };
         }
 
         case "check": {
@@ -101,7 +119,8 @@ export function createPlaywrightMCP(options: PlaywrightMCPOptions = {}): Playwri
             return failResult(base, started, resolved.attempts, `Could not locate checkbox "${step.target}"`);
           }
           await resolved.locator.check({ timeout: step.timeoutMs });
-          return { ...base, status: "PASSED", durationMs: Date.now() - started };
+          const screenshotPath = await captureStepScreenshot("PASSED");
+          return { ...base, status: "PASSED", durationMs: Date.now() - started, screenshotPath };
         }
 
         case "verify": {
@@ -114,19 +133,22 @@ export function createPlaywrightMCP(options: PlaywrightMCPOptions = {}): Playwri
           if (!visible) {
             return failResult(base, started, resolved.attempts, `"${step.target}" was found but is not visible`);
           }
+          const screenshotPath = await captureStepScreenshot("PASSED");
           return {
             ...base,
             status: "PASSED",
             durationMs: Date.now() - started,
             locatorAttempts: resolved.attempts,
             confidence: resolved.confidence,
+            screenshotPath,
           };
         }
 
         case "wait": {
           const ms = step.value ? Number(step.value) : 1000;
           await page.waitForTimeout(ms);
-          return { ...base, status: "PASSED", durationMs: Date.now() - started };
+          const screenshotPath = await captureStepScreenshot("PASSED");
+          return { ...base, status: "PASSED", durationMs: Date.now() - started, screenshotPath };
         }
 
         default:
